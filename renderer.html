@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css" type="text/css">
+    <title>renderer</title>
+
+</head>
+<body>
+    <!-- <svg width="300" height="300"> -->
+    <div id=canvas>
+        <title>Test</title>
+        <!-- <object id=_1 type="image/svg+xml" data="./Side.svg"></object> -->
+        <!-- <object id=_2 type="image/svg+xml" data="./front.svg"></object> -->
+        <!-- <object class="stand" id=_3 type="image/svg+xml" data="./stand.svg"><div id="inner"></div></object> -->
+    </div>
+    <img src="image/stand.svg" class="stand" id="_3" draggable="false">
+    <!-- <a id="test1">test</a> -->
+</body>
+
+
+<script>
+    // 페이지 로드 시 특정 위치로 이동
+    window.onload = function() {
+        //    scrollTo(800, 600);
+    }
+        var canvas_1 = document.querySelector("#canvas")
+        var stand_1 = document.querySelector("#_3");
+
+        movetarget(stand_1)
+        movescroll(canvas_1)
+
+
+        // 화면을 마우스 드래그로 움직이기
+        function movescroll(target_div) {
+
+            target_div.addEventListener("mousedown", function(e) {
+
+                // var offset_X = e.clientX;
+                // var offset_Y = e.clientY;
+
+                var click_X = e.clientX;
+                var click_Y = e.clientY;
+
+                var start_X = window.scrollX
+                var start_Y = window.scrollY
+
+                document.onmousemove = function(e) {
+                    scrollTo(start_X - (e.clientX - click_X), start_Y - (e.clientY - click_Y))
+                }
+
+            })
+
+            document.addEventListener("mouseup", function() {
+                document.onmousemove = null;
+            })
+        }
+
+
+
+        // target 을 마우스 드래그로 움직이기
+        function movetarget(target) {
+
+            target.addEventListener("mousedown", function(e) {
+
+                var offset_X = e.clientX - target.offsetLeft;
+                var offset_Y = e.clientY - target.offsetTop;
+
+                document.onmousemove = function(e) {
+                    target.style.left = e.clientX - offset_X + "px";
+                    target.style.top = e.clientY - offset_Y + "px";
+                    // console.log(e.pageX, e.pageY)
+                }
+            })  
+
+            document.addEventListener("mouseup", function() {
+                document.onmousemove = null;
+            });
+        }
+
+
+
+
+
+
+
+</script>
+</html>
