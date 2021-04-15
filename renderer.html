@@ -10,36 +10,43 @@
 </head>
 <body>
     <!-- <svg width="300" height="300"> -->
-    <div id=canvas>
-        <title>Test</title>
-        <!-- <object id=_1 type="image/svg+xml" data="./Side.svg"></object> -->
-        <!-- <object id=_2 type="image/svg+xml" data="./front.svg"></object> -->
-        <!-- <object class="stand" id=_3 type="image/svg+xml" data="./stand.svg"><div id="inner"></div></object> -->
-    </div>
-    <img src="image/stand.svg" class="stand" id="_3" draggable="false">
-    <!-- <a id="test1">test</a> -->
-</body>
+    <!-- <div id="wrapper"> -->
+        <div id="canvas">
+            <title>Test</title>
+            <!-- <object id=_1 type="image/svg+xml" data="./Side.svg"></object> -->
+            <!-- <object id=_2 type="image/svg+xml" data="./front.svg"></object> -->
+            <!-- <object class="stand" id=_3 type="image/svg+xml" data="./stand.svg"><div id="inner"></div></object> -->
+        </div>
+        <img src="image/ref_pic.jpg" class="stand" id="front_pic">
+        <img src="image/stand_1.svg" class="stand" id="_1">
+        <img src="image/stand_2.svg" class="stand" id="_2">
+        <img src="image/stand_3.svg" class="stand" id="_3">
+        <img src="image/stand_4.svg" class="stand" id="_4">
+        <img src="image/stand_5.svg" class="stand" id="_5">
+    <!-- </div> -->
+    
+    <script>
+        // 페이지 로드 시 특정 위치로 이동
+        window.onload = function() {
+            scrollTo(820, 700);
+        }
 
+        var canvas_1 = document.querySelector("#canvas");
+        var stands = document.querySelectorAll(".stand");
 
-<script>
-    // 페이지 로드 시 특정 위치로 이동
-    window.onload = function() {
-        //    scrollTo(800, 600);
-    }
-        var canvas_1 = document.querySelector("#canvas")
-        var stand_1 = document.querySelector("#_3");
-
-        movetarget(stand_1)
+        for (i = 0; i < stands.length; ++i) {
+            moveElement(stands[i])            
+        }
         movescroll(canvas_1)
+        // movesElement(document.querySelector("#front_pic"))
 
 
         // 화면을 마우스 드래그로 움직이기
         function movescroll(target_div) {
 
-            target_div.addEventListener("mousedown", function(e) {
 
-                // var offset_X = e.clientX;
-                // var offset_Y = e.clientY;
+            target_div.addEventListener("mousedown", function(e) {
+                e.preventDefault();
 
                 var click_X = e.clientX;
                 var click_Y = e.clientY;
@@ -50,7 +57,6 @@
                 document.onmousemove = function(e) {
                     scrollTo(start_X - (e.clientX - click_X), start_Y - (e.clientY - click_Y))
                 }
-
             })
 
             document.addEventListener("mouseup", function() {
@@ -61,9 +67,10 @@
 
 
         // target 을 마우스 드래그로 움직이기
-        function movetarget(target) {
+        function moveElement(target) {
 
             target.addEventListener("mousedown", function(e) {
+                e.preventDefault();
 
                 var offset_X = e.clientX - target.offsetLeft;
                 var offset_Y = e.clientY - target.offsetTop;
@@ -71,7 +78,6 @@
                 document.onmousemove = function(e) {
                     target.style.left = e.clientX - offset_X + "px";
                     target.style.top = e.clientY - offset_Y + "px";
-                    // console.log(e.pageX, e.pageY)
                 }
             })  
 
@@ -80,11 +86,8 @@
             });
         }
 
-
-
-
-
-
-
 </script>
+</body>
+
+
 </html>
