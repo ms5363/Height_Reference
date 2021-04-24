@@ -23,9 +23,26 @@
         <img src="image/stand_3.svg" class="stand" id="_3">
         <img src="image/stand_4.svg" class="stand" id="_4">
         <img src="image/stand_5.svg" class="stand" id="_5">
+
+
+        <div class="controls">
+            <label for="updown">updown test</label>
+            <input type="range" name="updown" step="0.01" min="22.45" max="32.68" value="26.12" data-sizing="px">
+
+        </div>
     <!-- </div> -->
     
     <script>
+        const barinputtest = document.querySelector(".controls input");
+        barinputtest.addEventListener("change", handleUpdate);
+        barinputtest.addEventListener("mousemove", handleUpdate);
+
+        function handleUpdate() {
+            // console.log(this.dataset);
+            const suffix = this.dataset.sizing || "";
+            document.documentElement.style.setProperty("--updown", this.value + suffix);
+        }
+
         // 페이지 로드 시 특정 위치로 이동
         window.onload = function() {
             scrollTo(820, 700);
@@ -34,16 +51,15 @@
         var canvas_1 = document.querySelector("#canvas");
         var stands = document.querySelectorAll(".stand");
 
-        for (i = 0; i < stands.length; ++i) {
-            moveElement(stands[i])            
-        }
+
+        stands.forEach((stand) => moveElement(stand));
+
+        
         movescroll(canvas_1)
-        // movesElement(document.querySelector("#front_pic"))
 
 
         // 화면을 마우스 드래그로 움직이기
         function movescroll(target_div) {
-
 
             target_div.addEventListener("mousedown", function(e) {
                 e.preventDefault();

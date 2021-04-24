@@ -1,14 +1,19 @@
-/* #canvas {
-    width:3200px;
-    height:1600px;
-    cursor:move;
- */
-/* } */
+:root {
+    --updown: 100px;
+}
+
+.controls {
+    position:absolute;
+    top: 1100px;
+    left: 800px;
+}
 
 #canvas {
-    width:3200px;
-    height:1600px;
-    cursor:move;
+    width: 3200px;
+    height: 1600px;
+    top: var(--updown);
+    position:absolute;
+    cursor: move;
     background-image:url("image/Front.svg");
     background-repeat:no-repeat;
     opacity: 0.5;
