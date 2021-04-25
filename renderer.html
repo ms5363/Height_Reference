@@ -61,23 +61,25 @@
         // 화면을 마우스 드래그로 움직이기
         function movescroll(target_div) {
 
-            target_div.addEventListener("mousedown", function(e) {
-                e.preventDefault();
+            var click_X;
+            var click_Y;
 
-                var click_X = e.clientX;
-                var click_Y = e.clientY;
+            var start_X;
+            var start_Y;
 
-                var start_X = window.scrollX
-                var start_Y = window.scrollY
+            var isScrollMoving = false;
+            
+            target_div.addEventListener('mousedown', (e) => {
+                ismoving = true;
+                [click_X, click_Y] = [e.clientX, e.clientY];
+                [start_X, start_Y] = [window.scrollX, window.scrollY]
+            });
 
-                document.onmousemove = function(e) {
-                    scrollTo(start_X - (e.clientX - click_X), start_Y - (e.clientY - click_Y))
-                }
+            document.addEventListener('mousemove', (e) => {
+                if (ismoving) { scrollTo(start_X - (e.clientX - click_X), start_Y - (e.clientY - click_Y)) }
             })
 
-            document.addEventListener("mouseup", function() {
-                document.onmousemove = null;
-            })
+            document.addEventListener("mouseup", () => ismoving = false);
         }
 
 
@@ -85,21 +87,26 @@
         // target 을 마우스 드래그로 움직이기
         function moveElement(target) {
 
-            target.addEventListener("mousedown", function(e) {
+            var offset_X;
+            var offset_Y;
+
+            var isObjectMoving = false;
+
+            target.addEventListener('mousedown', (e) => {
                 e.preventDefault();
-
-                var offset_X = e.clientX - target.offsetLeft;
-                var offset_Y = e.clientY - target.offsetTop;
-
-                document.onmousemove = function(e) {
-                    target.style.left = e.clientX - offset_X + "px";
-                    target.style.top = e.clientY - offset_Y + "px";
-                }
-            })  
-
-            document.addEventListener("mouseup", function() {
-                document.onmousemove = null;
+                isObjectMoving = true;
+                offset_X = e.clientX - target.offsetLeft;
+                offset_Y = e.clientY - target.offsetTop;
             });
+
+            document.addEventListener('mousemove', (e) => {
+                if(isObjectMoving) {
+                    target.style.left = e.clientX - offset_X + 'px';
+                    target.style.top = e.clientY - offset_Y + 'px';
+                }
+            });
+
+            document.addEventListener("mouseup", () => isObjectMoving = false);
         }
 
 </script>
