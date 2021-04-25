@@ -67,16 +67,16 @@
             var isScrollMoving = false;
             
             target_div.addEventListener('mousedown', (e) => {
-                ismoving = true;
+                isScrollMoving = true;
                 [click_X, click_Y] = [e.clientX, e.clientY];
                 [start_X, start_Y] = [window.scrollX, window.scrollY]
             });
 
             document.addEventListener('mousemove', (e) => {
-                if (ismoving) { scrollTo(start_X - (e.clientX - click_X), start_Y - (e.clientY - click_Y)) }
+                if (isScrollMoving) { scrollTo(start_X - (e.clientX - click_X), start_Y - (e.clientY - click_Y)) }
             })
 
-            document.addEventListener("mouseup", () => ismoving = false);
+            document.addEventListener("mouseup", () => isScrollMoving = false);
         }
 
 
