@@ -6,6 +6,9 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <link rel='stylesheet' href='./style.css' type='text/css'>
     <title>renderer</title>
+    <script type="text/javascript">
+        console.log(navigator.userAgent)
+    </script>
 
 </head>
 <body>
@@ -72,10 +75,15 @@
         // 마우스 휠 or 사이드바 input 으로 확대 축소 
         // 화면 scale 을 위한 변수 모니터링 - scaleValue.scale 변경시마다 화면 사이즈 갱신
         let scaleValue = {scale:1, min:0.2, max:7};
-        zoomController.setAttribute('min',scaleValue.min); 
-        zoomController.setAttribute('max',scaleValue.max); 
+        zoomController.min = scaleValue.min;
+        zoomController.max = scaleValue.max;
+        zoomController.value = 1;
+
         let setScaleValue = new Proxy(scaleValue, {
             set: function(target, key, value) {
+                if (target[key] == value) {
+                    return;
+                }
                 zoom(value);
                 if (scaleValue.min <= value && value <= scaleValue.max) {
                     target[key] = value;
@@ -105,21 +113,24 @@
 
             scaleRatio = newBodyScale / scaleValue.scale;
 
-            if (scaleRatio >= 1) scaleRatio2 = scaleRatio
-            else scaleRatio2 = scaleRatio / 2;
+            // if (scaleRatio >= 1) scaleRatio2 = scaleRatio
+            // else scaleRatio2 = scaleRatio;
             // scaleDiffer = newBodyScale - scaleValue.scale;
             
             scaleValue.scale = newBodyScale;
-            
+            console.log(mouseX - window.innerWidth / 2);
+            console.log(scaleRatio);
+            console.log(window.scrollX);
+
             scrollTo(
                 // 화면 중심 기준 확대 축소
                 window.scrollX * scaleRatio + (scaleRatio - 1) * window.innerWidth / 2
                 // + 확대 축소 시 마우스 포지션 따라가기 
-                + (mouseX - window.innerWidth / 2) * scaleRatio2 / 7,
+                + (mouseX - window.innerWidth / 2) * scaleRatio / 7,
                 
                 // y값 위와 동일
                 window.scrollY * scaleRatio + (scaleRatio - 1) * window.innerHeight / 2
-                + (mouseY - window.innerHeight / 2) * scaleRatio2 / 7
+                + (mouseY - window.innerHeight / 2) * scaleRatio / 7
                 );
 
             wrapper.style.transform = `scale(${scaleValue.scale})`;
@@ -198,7 +209,7 @@
         }
 
         // 로딩 시 사이드바 열기
-        setTimeout(toggleSidebar, 200);
+        // setTimeout(toggleSidebar, 200);
         
 
 
