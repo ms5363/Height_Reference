@@ -1,55 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./style.css" type="text/css">
+    <meta charset='UTF-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <link rel='stylesheet' href='./style.css' type='text/css'>
     <title>renderer</title>
 
 </head>
 <body>
-    <div class="wrapper">
-        <div id="canvas">
+    <div class='wrapper'>
+        <div id='canvas'>
             <title>Test</title>
         </div>
-        <div class="standsList">
-            <img src="image/ref_pic.jpg" class="stand" id="front_pic">
-            <img src="image/stand_1.svg" class="stand" id="_1">
-            <img src="image/stand_2.svg" class="stand" id="_2">
-            <img src="image/stand_3.svg" class="stand" id="_3">
-            <img src="image/stand_4.svg" class="stand" id="_4">
-            <img src="image/stand_5.svg" class="stand" id="_5">
+        <div class='standsList'>
+            <img src='image/ref_pic.jpg' class='stand' id='front_pic'>
+            <img src='image/stand_1.svg' class='stand' id='_1'>
+            <img src='image/stand_2.svg' class='stand' id='_2'>
+            <img src='image/stand_3.svg' class='stand' id='_3'>
+            <img src='image/stand_4.svg' class='stand' id='_4'>
+            <img src='image/stand_5.svg' class='stand' id='_5'>
         </div>
     </div>
 
-    <div class="sidebar">
-        <div class="controls">
+    <div class='sidebar'>
+        <div class='controls updownControl'>
             <div>
-                <label for="updown">updown test</label>
+                <label for='updown'>updown test</label>
             </div>
-            <input type="range" name="updown" step="0.01" min="22.45" max="32.68" value="25.89" data-sizing="px">
+            <input type='range' name='updown' step='0.01' min='22.45' max='32.68' value='25.89' data-sizing='px'>
+        </div>
+        <div class='controls zoomControl'>
+            <div>
+                <label for='zoom'>zoom test</label>
+            </div>
+            <input type='range' name='zoom' step='0.01' min='0.2' max='5' value='1' data-sizing=''>
         </div>
     </div>
 
     <script>
-        const barinputtest = document.querySelector(".controls input");
-        const standsList = document.querySelector(".standsList")
-        const standsAll = document.querySelectorAll(".stand");
+        
+        const standsList = document.querySelector('.standsList')
+        const standsAll = document.querySelectorAll('.stand');
         const wrapper = document.querySelector('.wrapper');
-
-            
-        let bodyScale = 1;
-        let scaleRatio;
+        
+        const updownController = document.querySelector('.updownControl input');
+        const zoomController = document.querySelector('.zoomControl input')
+        
+        // let bodyScale = zoomController.value;
+        let scaleValue = {scale:1};
+        let setScaleValue = new Proxy(scaleValue, {
+            set: function(target, key, value) {
+                target[key] = value;
+                zoom(value);
+                return true;
+            }
+        });
+        // let setScaleValue = scaleRatioProxy.value;
     
 
-        barinputtest.addEventListener("change", handleUpdate);
-        barinputtest.addEventListener("mousemove", handleUpdate);
+        updownController.addEventListener('change', updownUpdate);
+        updownController.addEventListener('mousemove', updownUpdate);
+        zoomController.addEventListener('change', (e) => setScaleValue.scale = e.target.value);
+        zoomController.addEventListener('mousemove', (e) => setScaleValue.scale = e.target.value);
 
-        function handleUpdate() {
-            const suffix = this.dataset.sizing || "";
-            document.documentElement.style.setProperty("--updown", this.value + suffix);
+
+
+        function updownUpdate() {
+            const suffix = this.dataset.sizing || '';
+            document.documentElement.style.setProperty('--updown', this.value + suffix);
         }
+
 
 
         // 페이지 로드 시 특정 위치로 이동
@@ -59,8 +80,7 @@
 
 
         // 마우스 드래그용 함수 연결
-        var canvas_1 = document.querySelector("#canvas");
-        // var stands = document.querySelectorAll(".stand");
+        var canvas_1 = document.querySelector('#canvas');
 
         // EventDelegation 으로 parent node 인 standsList 이벤트 핸들러 등록
         ((parentsNode) => moveElement(parentsNode))(standsList);
@@ -84,11 +104,11 @@
                 [start_X, start_Y] = [window.scrollX, window.scrollY]
             });
 
-            wrapper.addEventListener('mousemove', (e) => {
+            document.addEventListener('mousemove', (e) => {
                 if (isScrollMoving) { scrollTo(start_X - (e.clientX - click_X), start_Y - (e.clientY - click_Y)) }
             })
 
-            wrapper.addEventListener("mouseup", () => isScrollMoving = false);
+            document.addEventListener('mouseup', () => isScrollMoving = false);
         }
 
 
@@ -100,24 +120,22 @@
             var offset_Y;
 
             var movingTarget;
-            // var isObjectMoving = false;
 
             parentsNode.addEventListener('mousedown', (e) => {
                 e.preventDefault();
                 movingTarget = e.target;
-                // isObjectMoving = true;
-                offset_X = e.clientX / bodyScale- e.target.offsetLeft;
-                offset_Y = e.clientY / bodyScale - e.target.offsetTop;
+                offset_X = (e.clientX / bodyScale) - e.target.offsetLeft;
+                offset_Y = (e.clientY / bodyScale) - e.target.offsetTop;
             });
 
-            wrapper.addEventListener('mousemove', (e) => {
+            document.addEventListener('mousemove', (e) => {
                 if(movingTarget) {
                     movingTarget.style.left = (e.clientX / bodyScale) - offset_X + 'px';
                     movingTarget.style.top = (e.clientY / bodyScale) - offset_Y + 'px';
                 }
             });
 
-            wrapper.addEventListener("mouseup", () => {
+            document.addEventListener('mouseup', () => {
                 movingTarget = null;
             });
         }
@@ -126,19 +144,26 @@
 
 
 
+        function zoom(newBodyScale) {
+            scaleRatio = newBodyScale / scaleValue.scale;
+            
+            scaleValue.scale = newBodyScale;
+            
+            console.log(window.scrollY);
+            
+            scrollTo(window.scrollX * scaleRatio, window.scrollY * scaleRatio);
+            wrapper.style.transform = `scale(${scaleValue.scale})`;
+            zoomController.value = scaleValue.scale;
+        }
+
 
         wrapper.addEventListener('wheel', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            // console.log(e);
-
-            newBodyScale = bodyScale * (1 - e.deltaY / 2000);
             
-            scaleRatio = newBodyScale / bodyScale;
-            bodyScale = newBodyScale;
-
-            scrollTo(window.scrollX * scaleRatio, window.scrollY * scaleRatio);
-            wrapper.style.transform = `scale(${bodyScale})`;
+            newBodyScale = scaleValue.scale * (1 - e.deltaY / 3000);
+            
+            setScaleValue.scale = newBodyScale;
         });
 
     </script>
