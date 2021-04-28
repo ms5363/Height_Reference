@@ -23,82 +23,67 @@
         </div>
     </div>
 
-    <div class='sidebar'>
-        <div class='controls updownControl'>
-            <div>
-                <label for='updown'>updown test</label>
-            </div>
-            <input type='range' name='updown' step='0.01' min='22.45' max='32.68' value='25.89' data-sizing='px'>
-        </div>
-        <div class='controls zoomControl'>
-            <div>
-                <label for='zoom'>zoom test</label>
-            </div>
-            <input type='range' name='zoom' step='0.01' min='0.2' max='5' value='1' data-sizing=''>
-        </div>
+
+    <div class='sidebar_button' onclick='toggleSidebar()'>
+        <button>Control Bar</button>
     </div>
 
+    <div class='sidebar hidden'>
+        <div>
+            <div class='controls updownControl'>
+                <div>
+                    <label for='updown'>updown test</label>
+                </div>
+                <input type='range' name='updown' step='0.01' min='22.45' max='32.68' value='25.89' data-sizing='px'>
+            </div>
+
+            <div class='controls zoomControl'>
+                <div>
+                    <label for='zoom'>zoom test</label>
+                </div>
+                <input type='range' name='zoom' step='0.1' min='0.2' max='5' value='1' data-sizing=''>
+            </div>
+        </div>
+    </div>
+    
     <script>
         
-        const standsList = document.querySelector('.standsList')
-        const standsAll = document.querySelectorAll('.stand');
-        const wrapper = document.querySelector('.wrapper');
-        
-        const updownController = document.querySelector('.updownControl input');
-        const zoomController = document.querySelector('.zoomControl input')
-        
-        // let bodyScale = zoomController.value;
-        let scaleValue = {scale:1};
-        let setScaleValue = new Proxy(scaleValue, {
-            set: function(target, key, value) {
-                target[key] = value;
-                zoom(value);
-                return true;
-            }
-        });
-        // let setScaleValue = scaleRatioProxy.value;
-    
-
-        updownController.addEventListener('change', updownUpdate);
-        updownController.addEventListener('mousemove', updownUpdate);
-        zoomController.addEventListener('change', (e) => setScaleValue.scale = e.target.value);
-        zoomController.addEventListener('mousemove', (e) => setScaleValue.scale = e.target.value);
-
-
-
-        function updownUpdate() {
-            const suffix = this.dataset.sizing || '';
-            document.documentElement.style.setProperty('--updown', this.value + suffix);
-        }
-
-
-
         // 페이지 로드 시 특정 위치로 이동
         window.onload = function() {
             scrollTo(820, 700);
         }
+        
+        
+        
+        const canvas_1 = document.querySelector('#canvas');
+        const standsList = document.querySelector('.standsList')
+        const standsAll = document.querySelectorAll('.stand');
+        const wrapper = document.querySelector('.wrapper');
+        const sidebar = document.querySelector('.sidebar');
+        const updownController = document.querySelector('.updownControl input');
+        const zoomController = document.querySelector('.zoomControl input')
+    
+        
 
+        
 
-        // 마우스 드래그용 함수 연결
-        var canvas_1 = document.querySelector('#canvas');
-
-        // EventDelegation 으로 parent node 인 standsList 이벤트 핸들러 등록
-        ((parentsNode) => moveElement(parentsNode))(standsList);
+        
+        // 마우스 드래그로 화면스크롤 하는 함수 연결
         movescroll(canvas_1)
-
-
+        
         // 화면을 마우스 드래그로 움직이기
         function movescroll(target_div) {
 
-            var click_X;
-            var click_Y;
+            let click_X;
+            let click_Y;
 
-            var start_X;
-            var start_Y;
+            let start_X;
+            let start_Y;
 
-            var isScrollMoving = false;
+            let isScrollMoving = false;
             
             target_div.addEventListener('mousedown', (e) => {
+                e.preventDefault();
                 isScrollMoving = true;
                 [click_X, click_Y] = [e.clientX, e.clientY];
                 [start_X, start_Y] = [window.scrollX, window.scrollY]
@@ -113,25 +98,30 @@
 
 
 
+
+
         // stand 를 마우스 드래그로 움직이기
+        // 각 작업대의 움직임을 위해 작업대들의 parentNode 에 이벤트 위임
+        ((parentsNode) => moveElement(parentsNode))(standsList);
+        
         function moveElement(parentsNode) {
 
-            var offset_X;
-            var offset_Y;
+            let offset_X;
+            let offset_Y;
 
-            var movingTarget;
+            let movingTarget;
 
             parentsNode.addEventListener('mousedown', (e) => {
                 e.preventDefault();
                 movingTarget = e.target;
-                offset_X = (e.clientX / bodyScale) - e.target.offsetLeft;
-                offset_Y = (e.clientY / bodyScale) - e.target.offsetTop;
+                offset_X = (e.clientX / scaleValue.scale) - e.target.offsetLeft;
+                offset_Y = (e.clientY / scaleValue.scale) - e.target.offsetTop;
             });
 
             document.addEventListener('mousemove', (e) => {
                 if(movingTarget) {
-                    movingTarget.style.left = (e.clientX / bodyScale) - offset_X + 'px';
-                    movingTarget.style.top = (e.clientY / bodyScale) - offset_Y + 'px';
+                    movingTarget.style.left = (e.clientX / scaleValue.scale) - offset_X + 'px';
+                    movingTarget.style.top = (e.clientY / scaleValue.scale) - offset_Y + 'px';
                 }
             });
 
@@ -144,30 +134,71 @@
 
 
 
-        function zoom(newBodyScale) {
-            scaleRatio = newBodyScale / scaleValue.scale;
-            
-            scaleValue.scale = newBodyScale;
-            
-            console.log(window.scrollY);
-            
-            scrollTo(window.scrollX * scaleRatio, window.scrollY * scaleRatio);
-            wrapper.style.transform = `scale(${scaleValue.scale})`;
-            zoomController.value = scaleValue.scale;
-        }
 
+        // 마우스 휠 or 사이드바 input 으로 확대 축소 
+        // 화면 scale 을 위한 변수 모니터링 - scaleValue.scale 변경시마다 화면 사이즈 갱신
+        let scaleValue = {scale:1};
+        let setScaleValue = new Proxy(scaleValue, {
+            set: function(target, key, value) {
+                zoom(value);
+                target[key] = value;
+                return true;
+            }
+        });
+
+        zoomController.addEventListener('change', (e) => setScaleValue.scale = e.target.value);
+        zoomController.addEventListener('mousemove', (e) => setScaleValue.scale = e.target.value);
 
         wrapper.addEventListener('wheel', (e) => {
             e.preventDefault();
             e.stopPropagation();
             
             newBodyScale = scaleValue.scale * (1 - e.deltaY / 3000);
-            
             setScaleValue.scale = newBodyScale;
+            console.log(newBodyScale);
         });
+        
+        function zoom(newBodyScale) {
+            scaleRatio = newBodyScale / scaleValue.scale;
+            console.log('start : ', window.scrollX, scaleRatio);
+            console.log(window.innerWidth);
+            
+            scaleValue.scale = newBodyScale;
+            
+            scrollTo(window.scrollX * scaleRatio + (scaleRatio - 1) * window.innerWidth / 2,
+                     window.scrollY * scaleRatio + (scaleRatio - 1) * window.innerHeight / 2);
+            wrapper.style.transform = `scale(${scaleValue.scale})`;
+            zoomController.value = scaleValue.scale;
+        }
+
+
+        
+        
+
+        //sidebar toggle button
+        function toggleSidebar() {
+            sidebar.classList.toggle('hidden');
+        }
+
+        // 로딩 시 사이드바 열기
+        setTimeout(toggleSidebar, 200);
+        
+
+
+
+
+        // strut 높이 조절
+        updownController.addEventListener('change', updownUpdate);
+        updownController.addEventListener('mousemove', updownUpdate);
+
+        function updownUpdate() {
+            const suffix = this.dataset.sizing || '';
+            document.documentElement.style.setProperty('--updown', this.value + suffix);
+        }
+        
+        
 
     </script>
 </body>
-
 
 </html>
