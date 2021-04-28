@@ -58,6 +58,7 @@
         const updownController = document.querySelector('.updownControl input');
         const zoomController = document.querySelector('.zoomControl input')
         
+        let mouseX, mouseY;
         
 
         
@@ -70,12 +71,19 @@
 
         // 마우스 휠 or 사이드바 input 으로 확대 축소 
         // 화면 scale 을 위한 변수 모니터링 - scaleValue.scale 변경시마다 화면 사이즈 갱신
-        let scaleValue = {scale:1};
+        let scaleValue = {scale:1, min:0.2, max:7};
+        zoomController.setAttribute('min',scaleValue.min); 
+        zoomController.setAttribute('max',scaleValue.max); 
         let setScaleValue = new Proxy(scaleValue, {
             set: function(target, key, value) {
                 zoom(value);
-                target[key] = value;
-                return true;
+                if (scaleValue.min <= value && value <= scaleValue.max) {
+                    target[key] = value;
+                    return true;
+                }
+
+                if (value > scaleValue.max) target[key] = scaleValue.max;
+                else if (value < scaleValue.min) target[key] = scaleValue.min;
             }
         });
 
@@ -85,20 +93,35 @@
         wrapper.addEventListener('wheel', (e) => {
             e.preventDefault();
             
-            newBodyScale = scaleValue.scale * (1 - e.deltaY / 3000);
+            newBodyScale = scaleValue.scale * (1 - e.deltaY / 5000);
             setScaleValue.scale = newBodyScale;
-            console.log(newBodyScale);
         });
         
         function zoom(newBodyScale) {
+            if (newBodyScale > scaleValue.max) newBodyScale = scaleValue.max;
+            else if (newBodyScale < scaleValue.min) newbodyScale = scaleValue.min;
+
+            if (newBodyScale == scaleValue.value) return;
+
             scaleRatio = newBodyScale / scaleValue.scale;
-            console.log('start : ', window.scrollX, scaleRatio);
-            console.log(window.innerWidth);
+
+            if (scaleRatio >= 1) scaleRatio2 = scaleRatio
+            else scaleRatio2 = scaleRatio / 2;
+            // scaleDiffer = newBodyScale - scaleValue.scale;
             
             scaleValue.scale = newBodyScale;
             
-            scrollTo(window.scrollX * scaleRatio + (scaleRatio - 1) * window.innerWidth / 2,
-                     window.scrollY * scaleRatio + (scaleRatio - 1) * window.innerHeight / 2);
+            scrollTo(
+                // 화면 중심 기준 확대 축소
+                window.scrollX * scaleRatio + (scaleRatio - 1) * window.innerWidth / 2
+                // + 확대 축소 시 마우스 포지션 따라가기 
+                + (mouseX - window.innerWidth / 2) * scaleRatio2 / 7,
+                
+                // y값 위와 동일
+                window.scrollY * scaleRatio + (scaleRatio - 1) * window.innerHeight / 2
+                + (mouseY - window.innerHeight / 2) * scaleRatio2 / 7
+                );
+
             wrapper.style.transform = `scale(${scaleValue.scale})`;
             zoomController.value = scaleValue.scale;
         }
@@ -112,11 +135,8 @@
         // 화면을 마우스 드래그로 움직이기
         function movescroll(target_div) {
 
-            let click_X;
-            let click_Y;
-
-            let start_X;
-            let start_Y;
+            let click_X, click_Y;
+            let start_X, start_Y;
 
             let isScrollMoving = false;
             
@@ -128,6 +148,7 @@
             });
 
             document.addEventListener('mousemove', (e) => {
+                [mouseX, mouseY] = [e.clientX, e.clientY]
                 if (isScrollMoving) { scrollTo(start_X - (e.clientX - click_X), start_Y - (e.clientY - click_Y)) }
             })
 
@@ -139,13 +160,12 @@
 
 
         // stand 를 마우스 드래그로 움직이기
-        // 각 작업대의 움직임을 위해 작업대들의 parentNode 에 이벤트 위임
+        // 각 작업대 이미지의 움직임을 위해 이미지들의 parentNode 에 이벤트 위임
         ((parentsNode) => moveElement(parentsNode))(standsList);
         
         function moveElement(parentsNode) {
 
-            let offset_X;
-            let offset_Y;
+            let offset_X, offset_Y;
 
             let movingTarget;
 
@@ -171,10 +191,6 @@
 
 
 
-
-
-        
-        
 
         //sidebar toggle button
         function toggleSidebar() {
