@@ -9,49 +9,61 @@
 
 </head>
 <body>
-    <!-- <svg width="300" height="300"> -->
-    <!-- <div id="wrapper"> -->
+    <div class="wrapper">
         <div id="canvas">
             <title>Test</title>
-            <!-- <object id=_1 type="image/svg+xml" data="./Side.svg"></object> -->
-            <!-- <object id=_2 type="image/svg+xml" data="./front.svg"></object> -->
-            <!-- <object class="stand" id=_3 type="image/svg+xml" data="./stand.svg"><div id="inner"></div></object> -->
         </div>
-        <img src="image/ref_pic.jpg" class="stand" id="front_pic">
-        <img src="image/stand_1.svg" class="stand" id="_1">
-        <img src="image/stand_2.svg" class="stand" id="_2">
-        <img src="image/stand_3.svg" class="stand" id="_3">
-        <img src="image/stand_4.svg" class="stand" id="_4">
-        <img src="image/stand_5.svg" class="stand" id="_5">
+        <div class="standsList">
+            <img src="image/ref_pic.jpg" class="stand" id="front_pic">
+            <img src="image/stand_1.svg" class="stand" id="_1">
+            <img src="image/stand_2.svg" class="stand" id="_2">
+            <img src="image/stand_3.svg" class="stand" id="_3">
+            <img src="image/stand_4.svg" class="stand" id="_4">
+            <img src="image/stand_5.svg" class="stand" id="_5">
+        </div>
+    </div>
 
-
+    <div class="sidebar">
         <div class="controls">
-            <label for="updown">updown test</label>
+            <div>
+                <label for="updown">updown test</label>
+            </div>
             <input type="range" name="updown" step="0.01" min="22.45" max="32.68" value="25.89" data-sizing="px">
-
         </div>
-    <!-- </div> -->
-    
+    </div>
+
     <script>
         const barinputtest = document.querySelector(".controls input");
+        const standsList = document.querySelector(".standsList")
+        const standsAll = document.querySelectorAll(".stand");
+        const wrapper = document.querySelector('.wrapper');
+
+            
+        let bodyScale = 1;
+        let scaleRatio;
+    
+
         barinputtest.addEventListener("change", handleUpdate);
         barinputtest.addEventListener("mousemove", handleUpdate);
 
         function handleUpdate() {
-            // console.log(this.dataset);
             const suffix = this.dataset.sizing || "";
             document.documentElement.style.setProperty("--updown", this.value + suffix);
         }
+
 
         // 페이지 로드 시 특정 위치로 이동
         window.onload = function() {
             scrollTo(820, 700);
         }
 
-        var canvas_1 = document.querySelector("#canvas");
-        var stands = document.querySelectorAll(".stand");
 
-        stands.forEach((stand) => moveElement(stand));
+        // 마우스 드래그용 함수 연결
+        var canvas_1 = document.querySelector("#canvas");
+        // var stands = document.querySelectorAll(".stand");
+
+        // EventDelegation 으로 parent node 인 standsList 이벤트 핸들러 등록
+        ((parentsNode) => moveElement(parentsNode))(standsList);
         movescroll(canvas_1)
 
 
@@ -72,39 +84,62 @@
                 [start_X, start_Y] = [window.scrollX, window.scrollY]
             });
 
-            document.addEventListener('mousemove', (e) => {
+            wrapper.addEventListener('mousemove', (e) => {
                 if (isScrollMoving) { scrollTo(start_X - (e.clientX - click_X), start_Y - (e.clientY - click_Y)) }
             })
 
-            document.addEventListener("mouseup", () => isScrollMoving = false);
+            wrapper.addEventListener("mouseup", () => isScrollMoving = false);
         }
 
 
 
-        // target 을 마우스 드래그로 움직이기
-        function moveElement(target) {
+        // stand 를 마우스 드래그로 움직이기
+        function moveElement(parentsNode) {
 
             var offset_X;
             var offset_Y;
 
-            var isObjectMoving = false;
+            var movingTarget;
+            // var isObjectMoving = false;
 
-            target.addEventListener('mousedown', (e) => {
+            parentsNode.addEventListener('mousedown', (e) => {
                 e.preventDefault();
-                isObjectMoving = true;
-                offset_X = e.clientX - target.offsetLeft;
-                offset_Y = e.clientY - target.offsetTop;
+                movingTarget = e.target;
+                // isObjectMoving = true;
+                offset_X = e.clientX / bodyScale- e.target.offsetLeft;
+                offset_Y = e.clientY / bodyScale - e.target.offsetTop;
             });
 
-            document.addEventListener('mousemove', (e) => {
-                if(isObjectMoving) {
-                    target.style.left = e.clientX - offset_X + 'px';
-                    target.style.top = e.clientY - offset_Y + 'px';
+            wrapper.addEventListener('mousemove', (e) => {
+                if(movingTarget) {
+                    movingTarget.style.left = (e.clientX / bodyScale) - offset_X + 'px';
+                    movingTarget.style.top = (e.clientY / bodyScale) - offset_Y + 'px';
                 }
             });
 
-            document.addEventListener("mouseup", () => isObjectMoving = false);
+            wrapper.addEventListener("mouseup", () => {
+                movingTarget = null;
+            });
         }
+
+
+
+
+
+
+        wrapper.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // console.log(e);
+
+            newBodyScale = bodyScale * (1 - e.deltaY / 2000);
+            
+            scaleRatio = newBodyScale / bodyScale;
+            bodyScale = newBodyScale;
+
+            scrollTo(window.scrollX * scaleRatio, window.scrollY * scaleRatio);
+            wrapper.style.transform = `scale(${bodyScale})`;
+        });
 
     </script>
 </body>
