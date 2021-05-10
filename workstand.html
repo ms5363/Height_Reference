@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <link rel='stylesheet' href='./style.css' type='text/css'>
+    <title>WorkStand</title>
+    <script type="text/javascript">
+    </script>
+
+</head>
+<body>
+    <div class='wrapper'>
+        <div id='background_SVG'>
+            <title>Test</title>
+        </div>
+        <img src='image/ref_pic.jpg' id='background_PIC'>
+        <div class='standsList'>
+            <img src='image/stand_1.svg' class='stand' id='_1'>
+            <img src='image/stand_2.svg' class='stand' id='_2'>
+            <img src='image/stand_3.svg' class='stand' id='_3'>
+            <img src='image/stand_4.svg' class='stand' id='_4'>
+            <img src='image/stand_5.svg' class='stand' id='_5'>
+        </div>
+    </div>
+
+
+    <div class='sidebar_button' onclick='toggleSidebar()'>
+        <button>Control Bar</button>
+    </div>
+
+    <div class='sidebar hidden'>
+        <div>
+            <div class='controls updownControl'>
+                <div>
+                    <label for='updown'>L/G Strut updown test</label>
+                </div>
+                <input type='range' name='updown' step='0.01' min='12.45' max='32.68' value='25.89' data-sizing='px' autocomplete='off'>
+                <span>test</span>
+            </div>
+            <div class=buttons1>
+                <button class="background_toggle">기본(SVG ONLY)</button>
+                <button class="background_toggle">이미지만 표시</button>
+                <button class="background_toggle">이미지 & SVG 동시 표시</button>
+            </div>
+            <div>
+                <p>
+                    개념 전달을 위한 샘플입니다. A/C, stand 및 strut Dimension 은 실제 값과 다릅니다.
+                </p>
+                <p>
+                    마우스로 화면을 끌어 스크롤 하고 스탠드를 끌어 움직일 수 있습니다.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        
+        // const wrapper = document.querySelector('.wrapper');
+        // const standsAll = document.querySelectorAll('.stand');
+        
+        
+        const background_SVG = document.querySelector('#background_SVG');
+        const background_PIC = document.querySelector('#background_PIC')
+        const standsList = document.querySelector('.standsList')
+        const sidebar = document.querySelector('.sidebar');
+        const updownController = document.querySelector('.updownControl input');
+        const background_toggle_buttons = document.querySelectorAll('.background_toggle')
+
+
+
+
+
+
+
+
+        //sidebar toggle button
+        function toggleSidebar() {
+            sidebar.classList.toggle('hidden');
+        }
+
+        // 로딩 시 사이드바 열기
+        setTimeout(toggleSidebar, 200);
+        
+        // strut 높이 조절
+        updownController.addEventListener('change', updownUpdate);
+        updownController.addEventListener('mousemove', updownUpdate);
+        updownController.parentNode.querySelector('span').textContent = updownController.value + " inch";
+        function updownUpdate() {
+            const suffix = this.dataset.sizing || '';
+            background_SVG.style.setProperty('--updown', this.value + suffix);
+            this.parentNode.querySelector('span').textContent = this.value + " inch";
+        }
+        
+
+
+
+
+
+
+
+
+
+
+
+        // 배경 svg & pic 표시 버튼 설정
+        background_toggle_buttons[0].addEventListener('click', showSVG_only);
+        background_toggle_buttons[1].addEventListener('click', showPIC_only);
+        background_toggle_buttons[2].addEventListener('click', showSVG_and_PIC);
+
+        function showSVG_only() {
+            background_SVG.style.opacity = '0.5';
+            background_PIC.style.opacity = '0';
+        }
+        function showPIC_only() {
+            background_SVG.style.opacity = '0';
+            background_PIC.style.opacity = '0.5';
+        }
+        function showSVG_and_PIC() {
+            background_SVG.style.opacity = '0.5';
+            background_PIC.style.opacity = '0.5';
+        }
+
+
+
+
+
+
+        
+        
+
+
+        
+
+        // 페이지 로드 시 특정 위치로 이동
+        window.onload = function() {
+            scrollTo(700, 650);
+        }
+        
+
+
+
+
+
+
+
+
+
+
+
+        let mouseX, mouseY;
+        
+        // 마우스 드래그로 화면스크롤 하는 함수 연결
+        movescroll(background_SVG);
+        
+        // 화면을 마우스 드래그로 움직이기
+        function movescroll(target_div) {
+
+            let click_X, click_Y;
+            let start_X, start_Y;
+
+            let isScrollMoving = false;
+            
+            target_div.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                isScrollMoving = true;
+                [click_X, click_Y] = [e.clientX, e.clientY];
+                [start_X, start_Y] = [window.scrollX, window.scrollY];
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                [mouseX, mouseY] = [e.clientX, e.clientY]
+                if (isScrollMoving) { scrollTo(start_X - (e.clientX - click_X), start_Y - (e.clientY - click_Y)) }
+            })
+
+            document.addEventListener('mouseup', () => isScrollMoving = false);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // stand 를 마우스 드래그로 움직이기
+        // 각 작업대 이미지의 움직임을 위해 이미지들의 parentNode 에 이벤트 위임
+        ((parentsNode) => moveElement(parentsNode))(standsList);
+        
+        function moveElement(parentsNode) {
+
+            let offset_X, offset_Y;
+
+            let movingTarget;
+
+            parentsNode.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                movingTarget = e.target;
+                offset_X = e.clientX - e.target.offsetLeft;
+                offset_Y = e.clientY - e.target.offsetTop;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if(movingTarget) {
+                    movingTarget.style.left = e.clientX - offset_X + 'px';
+                    movingTarget.style.top = e.clientY - offset_Y + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                movingTarget = null;
+            });
+        }
+
+
+
+
+
+
+
+
+    </script>
+</body>
+
+</html>
