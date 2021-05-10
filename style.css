@@ -3,29 +3,39 @@
 }
 
 body {
-    /* transform: scale(1); */
     height: 100%;
     width: 100%;
     overflow: hidden;
     max-width: fit-content;
     transition: all 0.2s;
-    /* width: 3200px;
-    height: 1600px; */
 }
 
 .wrapper {
-    /* overflow: hidden; */
     display: inline-block;
     height: 100%;
     width: 100%;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .sidebar_button {
     padding-top: 10px;
     position:fixed;
     top: 10px;
     right: 10px;
-    z-index:4;
+    z-index:3;
 }
 
 .sidebar_button button {
@@ -48,7 +58,7 @@ body {
     height: 100%;
     bottom: 0px;
     right: 0;
-    z-index:3;
+    z-index:2;
     position: fixed;
     /* display: flex;
     flex-direction: column; */
@@ -65,16 +75,16 @@ body {
 }
 
 .controls {
-    border:1px solid black;
+    border: 1px solid black;
     border-radius: 10px;
     margin: 10px;
     padding: 5px;
-    z-index:3;
+    z-index: 2;
 }
 
 .controls input {
     vertical-align: middle;
-    width: 160px;
+    width: 120px;
 }
 
 .controls div {
@@ -83,10 +93,35 @@ body {
     vertical-align: middle;
 }
 
-#canvas {
+.buttons1 {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.background_toggle {
+    margin: 5px;
+    padding: 5px;
+    width: 200px;
+    border-radius: 5px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+#background_SVG {
     width: 3200px;
     height: 1600px;
-    /* display: inline-table; */
     top: var(--updown);
     position:absolute;
     cursor: move;
@@ -95,55 +130,66 @@ body {
     opacity: 0.5;
 }
 
-#front_pic {
-    position:absolute;
-    top:0;
-    left:0;
-    width:1110px;
-    height:750px;
-    z-index: 1;
-    /* background-image:url("image/ref_pic.jpg");
+#background_PIC {
+    position: absolute;
+    top: 550px;
+    left: 976px;
+    width: 1110px;
+    height: 750px;
+    z-index: -1;
     background-size: 100%;
-    background-repeat: no-repeat; */
-    opacity: 0.5;
-    transform: rotate(-1deg)
+    background-repeat: no-repeat;
+    opacity: 0;
+    transform: rotate(-1deg);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 object {
-    width:50%;
-    position:relative;
-    top:100px;
-    left:100px;
+    width: 50%;
+    position: relative;
+    top: 100px;
+    left: 100px;
 }
 
 .stand {
-    position:absolute;
-    z-index:2;
-    cursor:grab;
+    position: absolute;
+    z-index: 2;
+    cursor: grab;
+    top: 1300px;
 }
 
 #_1 {
-    left:850px;
-    top:1200px;
+    left: 850px;
 }
 
 #_2 {
-    left:1050px;
-    top:1200px;
+    left: 1050px;
 }
 
 #_3 {
-    left:1200px;
-    top:1200px;
+    left: 1200px;
 }
 
 #_4 {
-    left:1300px;
-    top:1200px;
+    left: 1300px;
 }
 
 #_5 {
-    left:1400px;
-    top:1200px;
+    left: 1400px;
 }
